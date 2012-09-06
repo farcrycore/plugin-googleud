@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<webtop>
+	<section id="admin" mergeType="merge">
+		<subsection id="general">
+			<menu id="farcryud" sequence="100" label="User Directory" permission="SecurityPolicyManagementTab">
+				<menuitem id="listgudgroup" sequence="30" label="Google Groups" link="/admin/customadmin.cfm?module=customlists/gudGroup.cfm&amp;plugin=googleud" />
+			</menu>
+		</subsection>
+	</section>
+</webtop>
