@@ -16,7 +16,7 @@
 			
 			<cfset stResult.userid = "" />
 			<cfset stResult.authenticated = false />
-			<cfset stResult.message = form.error />
+			<cfset stResult.message = url.error />
 			
 		<cfelseif structkeyexists(url,"code")>
 			

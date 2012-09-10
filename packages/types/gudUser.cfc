@@ -196,6 +196,15 @@
 			</cfif>
 		</cfloop>
 		
+		<cfloop collection="#application.stCOAPI[arguments.typename].stProps#" item="property">
+			<cfif application.stCOAPI[arguments.typename].stProps[property].metadata.type eq "uuid" and structkeyexists(application.stCOAPI[arguments.typename].stProps[property].metadata,"ftJoin") and application.stCOAPI[arguments.typename].stProps[property].metadata.ftJoin eq "dmProfile">
+				<cfquery datasource="#application.dsn#">
+					update	#application.dbowner##arguments.typename#
+					set		#property# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.newprofile.objectid#" />
+					where	#property# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.oldprofile.objectid#" />
+				</cfquery>
+			</cfif>
+		</cfloop>
 	</cffunction>
 	
 	<cffunction name="migrateLogs" access="private" output="false" returntype="void">
