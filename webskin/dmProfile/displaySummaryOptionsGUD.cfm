@@ -12,6 +12,11 @@
 			<a href="https://www.google.com/settings/account">Google Account Settings</a>
 		</small>
 	</li>
+	<li>
+		<small>
+			<a href="#application.fapi.getLink(type='gudLogin',view='displayPageAdmin',bodyView='displayTypeBodyMerge')#" target="content">Merge Existing Account</a>
+		</small>
+	</li>
 </cfoutput>
 
 <cfsetting enablecfoutputonly="false" />

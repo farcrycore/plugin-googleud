@@ -34,7 +34,9 @@
 				<cfif structisempty(stUser)>
 					<cfset stUser = oUser.getData(createuuid()) />
 					<cfset stUser.userid = stTokenInfo.user_id />
-					<cfset stUser.refreshToken = stTokens.refresh_token />
+					<cfif structkeyexists(stTokens,"refresh_token")>
+						<cfset stUser.refreshToken = stTokens.refresh_token />
+					</cfif>
 					<cfset stUser.providerDomain = listlast(session.security.ga[hash(stTokenInfo.user_id)].profile.email,"@") />
 					<cfset oUser.setData(stProperties=stUser) />
 				<cfelse>
