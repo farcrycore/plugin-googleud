@@ -166,24 +166,19 @@
 		<cfif len(arguments.proxy)>
 			<cfif listlen(arguments.proxy,"@") eq 2>
 				<cfset stResult.login = listfirst(arguments.proxy,"@") />
-				<cfset stResult.user = listfirst(stResult.login,":") />
-				<cfset stResult.password = listlast(stResult.login,":") />
+				<cfset stResult.proxyUser = listfirst(stResult.login,":") />
+				<cfset stResult.proxyPassword = listlast(stResult.login,":") />
 			<cfelse>
-				<cfset stResult.user = "" />
-				<cfset stResult.password = "" />
+				<cfset stResult.proxyUser = "" />
+				<cfset stResult.proxyPassword = "" />
 			</cfif>
 			<cfset stResult.server = listlast(arguments.proxy,"@") />
-			<cfset stResult.domain = listfirst(stResult.server,":") />
+			<cfset stResult.proxyServer = listfirst(stResult.server,":") />
 			<cfif listlen(stResult.server,":") eq 2>
-				<cfset stResult.port = listlast(stResult.server,":") />
+				<cfset stResult.proxyPort = listlast(stResult.server,":") />
 			<cfelse>
-				<cfset stResult.port = "80" />
+				<cfset stResult.proxyPort = "80" />
 			</cfif>
-		<cfelse>
-			<cfset stResult.user = "" />
-			<cfset stResult.password = "" />
-			<cfset stResult.domain = "" />
-			<cfset stREsult.port = "80" />
 		</cfif>
 		
 		<cfreturn stResult />
@@ -219,14 +214,14 @@
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
-		<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" proxyServer="#stProxy.domain#" proxyPort="#stProxy.port#" proxyUser="#stProxy.user#" proxyPassword="#stProxy.password#">
+		<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" attributeCollection="#stProxy#">
 			<cfhttpparam type="formfield" name="code" value="#arguments.authorizationCode#" />
 			<cfhttpparam type="formfield" name="client_id" value="#arguments.clientID#" />
 			<cfhttpparam type="formfield" name="client_secret" value="#arguments.clientSecret#" />
 			<cfhttpparam type="formfield" name="redirect_uri" value="#arguments.redirectURL#" />
 			<cfhttpparam type="formfield" name="grant_type" value="authorization_code" />
 		</cfhttp>
-		
+
 		<cfif not cfhttp.statuscode eq "200 OK">
 			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://accounts.google.com/o/oauth2/token",response=cfhttp.filecontent,argumentCollection=arguments) />
 		</cfif>
@@ -248,7 +243,7 @@
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
 		<cfif isdefined("arguments.refresh_token") and datecompare(arguments.access_token_expires,now()) lt 0>
-			<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" proxyServer="#stProxy.domain#" proxyPort="#stProxy.port#" proxyUser="#stProxy.user#" proxyPassword="#stProxy.password#">
+			<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" attributeCollection="#stProxy#">
 				<cfhttpparam type="formfield" name="refresh_token" value="#arguments.refreshToken#" />
 				<cfhttpparam type="formfield" name="client_id" value="#arguments.clientID#" />
 				<cfhttpparam type="formfield" name="client_secret" value="#arguments.clientSecret#" />
@@ -278,7 +273,7 @@
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
-		<cfhttp url="https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#arguments.accessToken#" method="GET" proxyServer="#stProxy.domain#" proxyPort="#stProxy.port#" proxyUser="#stProxy.user#" proxyPassword="#stProxy.password#" />
+		<cfhttp url="https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#arguments.accessToken#" method="GET" attributeCollection="#stProxy#" />
 		
 		<cfif not cfhttp.statuscode eq "200 OK">
 			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=cfhttp.filecontent,argumentCollection=arguments) />
@@ -303,10 +298,10 @@
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
-		<cfhttp url="https://www.googleapis.com/oauth2/v1/userinfo" method="GET" proxyServer="#stProxy.domain#" proxyPort="#stProxy.port#" proxyUser="#stProxy.user#" proxyPassword="#stProxy.password#">
+		<cfhttp url="https://www.googleapis.com/oauth2/v1/userinfo" method="GET" attributeCollection="#stProxy#">
 			<cfhttpparam type="header" name="Authorization" value="Bearer #arguments.accessToken#" />
 		</cfhttp>
-		
+
 		<cfif not cfhttp.statuscode eq "200 OK">
 			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://www.googleapis.com/oauth2/v1/userinfo",response=cfhttp.filecontent,argumentCollection=arguments) />
 		</cfif>
