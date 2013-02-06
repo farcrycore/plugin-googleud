@@ -26,8 +26,8 @@ ACTION
 			<cfset stUser = oUser.getData(objectid=savedUserID) />
 			
 			<!--- If the current username is not the same one we saved (ie. new user) --->
-			<cfif stProperties.username NEQ "#stUser.objectid#_GUD"><!--- New user --->
-				<cfset stProperties.username = "#stUser.objectid#_GUD" />
+			<cfif stProperties.username NEQ "#stUser.userid#_GUD"><!--- New user --->
+				<cfset stProperties.username = "#stUser.userid#_GUD" />
 				<cfset stProperties.userdirectory = "GUD" />
 			</cfif>
 		</cfif>			
