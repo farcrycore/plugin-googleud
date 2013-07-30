@@ -212,9 +212,16 @@
 		
 		<cfset var cfhttp = structnew() />
 		<cfset var stResult = structnew() />
-		<cfset var stProxy = parseProxy(arguments.proxy) />
+		<cfset var stAttr = structnew() />
 		
-		<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" attributeCollection="#stProxy#">
+		<cfset stAttr.url = "https://accounts.google.com/o/oauth2/token" />
+		<cfset stAttr.method = "POST" />
+		
+		<cfif len(arguments.proxy)>
+			<cfset structappend(stAttr,parseProxy(arguments.proxy)) />
+		</cfif>
+		
+		<cfhttp attributeCollection="#stAttr#">
 			<cfhttpparam type="formfield" name="code" value="#arguments.authorizationCode#" />
 			<cfhttpparam type="formfield" name="client_id" value="#arguments.clientID#" />
 			<cfhttpparam type="formfield" name="client_secret" value="#arguments.clientSecret#" />
@@ -223,7 +230,7 @@
 		</cfhttp>
 
 		<cfif not cfhttp.statuscode eq "200 OK">
-			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://accounts.google.com/o/oauth2/token",response=cfhttp.filecontent,argumentCollection=arguments) />
+			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://accounts.google.com/o/oauth2/token",response=trim(cfhttp.filecontent),args=arguments,stAttr=stAttr) />
 		</cfif>
 		
 		<cfset stResult = deserializeJSON(cfhttp.FileContent.toString()) />
@@ -327,7 +334,7 @@
 		
 		<cfset application.fc.lib.error.logData(stLog,false,false) />
 		
-		<cfthrow message="#arguments.message#" />
+		<cfthrow message="#arguments.message#" detail="#serializeJSON(arguments)#" />
 	</cffunction>
 	
 </cfcomponent>
