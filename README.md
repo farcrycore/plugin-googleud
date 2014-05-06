@@ -2,7 +2,9 @@
 
 ## Overview
 
-Google UD provides federated logins for FarCry publishing platform using [OAuth 2.0 for Google accounts](https://developers.google.com/accounts/docs/OAuth2Login)
+Google UD provides federated logins for FarCry publishing platform using [OAuth 2.0 for Google accounts](https://developers.google.com/accounts/docs/OAuth2Login). You can set up Google authentication as an option in the login, or the default login for immediate access to the webtop.
+
+![Google UD Login](docs/googleud-login.png)
 
 ## Installation
 
