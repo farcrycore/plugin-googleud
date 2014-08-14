@@ -71,15 +71,15 @@
 			select	title
 			from	#application.dbowner#gudGroup
 			where	objectid in (
-						select	"data"
+						select	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>
 						from	#application.dbowner#gudUser_aGroups
 						where	parentid=<cfqueryparam cfsqltype="cf_sql_varchar" value="#stUser.objectid#" />
 					)
 					or objectid in (
 						select	parentid
 						from	#application.dbowner#gudGroup_aDomains
-						where	"data"=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
-								or "data"=<cfqueryparam cfsqltype="cf_sql_varchar" value="#stUser.providerDomain#" />
+						where	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
+								or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#stUser.providerDomain#" />
 					)
 		</cfquery>
 		
@@ -120,13 +120,13 @@
 						from	#application.dbowner#gudUser_aGroups ug
 								inner join
 								#application.dbowner#gudGroup g
-								ug."data"=g.objectid
+								on ug.<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=g.objectid
 						where	g.title=<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.group#" />
 								or objectid in (
 									select	parentid
 									from	#application.dbowner#gudGroup_aDomains
-									where	"data"=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
-											or "data"=gudUser.providerDomain
+									where	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
+											or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=gudUser.providerDomain
 								)
 					)
 		</cfquery>

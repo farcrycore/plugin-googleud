@@ -87,7 +87,7 @@
 		<cfquery datasource="#application.dsn#" name="qUser">
 			delete
 			from	#application.dbowner#gudUser_aGroups
-			where	"data"=<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.objectid#" />
+			where	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.objectid#" />
 		</cfquery>
 		
 		<cfreturn super.delete(objectid=arguments.objectid,user=arguments.user,auditNote=arguments.auditNote) />
