@@ -142,12 +142,12 @@
 		
 		<cfif isdefined("session.security.ga.#hash(arguments.userid)#") and not isdefined("session.security.ga.#hash(arguments.userid)#.profile")>
 			<cfset session.security.ga[hash(arguments.userid)].profile = getGoogleProfile(access_token=session.security.ga[hash(arguments.userid)].access_token,proxy=application.config.GUD.proxy) />
+			<cfset stProfile.firstname = session.security.ga[hash(arguments.userid)].profile.given_name />
+			<cfset stProfile.lastname = session.security.ga[hash(arguments.userid)].profile.family_name />
+			<cfset stProfile.emailaddress = session.security.ga[hash(arguments.userid)].profile.email />
+			<cfset stProfile.label = "#stProfile.firstname# #stProfile.lastname#" />
 		</cfif>
 		
-		<cfset stProfile.firstname = session.security.ga[hash(arguments.userid)].profile.given_name />
-		<cfset stProfile.lastname = session.security.ga[hash(arguments.userid)].profile.family_name />
-		<cfset stProfile.emailaddress = session.security.ga[hash(arguments.userid)].profile.email />
-		<cfset stProfile.label = "#stProfile.firstname# #stProfile.lastname#" />
 		<cfset stProfile.override = true />
 		
 		<cfreturn stProfile />
