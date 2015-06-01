@@ -133,26 +133,30 @@
 		
 		<cfreturn listtoarray(valuelist(qUsers.objectid)) />
 	</cffunction>
-	
+
 	<cffunction name="getProfile" access="public" output="false" returntype="struct" hint="Returns profile data available through the user directory">
 		<cfargument name="userid" type="string" required="true" hint="The user directory specific user id" />
 		<cfargument name="currentprofile" type="struct" required="false" hint="The current user profile" />
-		
+
 		<cfset var stProfile = structnew() />
-		
-		<cfif isdefined("session.security.ga.#hash(arguments.userid)#") and not isdefined("session.security.ga.#hash(arguments.userid)#.profile")>
-			<cfset session.security.ga[hash(arguments.userid)].profile = getGoogleProfile(access_token=session.security.ga[hash(arguments.userid)].access_token,proxy=application.config.GUD.proxy) />
-			<cfset stProfile.firstname = session.security.ga[hash(arguments.userid)].profile.given_name />
-			<cfset stProfile.lastname = session.security.ga[hash(arguments.userid)].profile.family_name />
-			<cfset stProfile.emailaddress = session.security.ga[hash(arguments.userid)].profile.email />
+		<cfset var useridHash = hash(arguments.userid) />
+
+		<cfif isdefined("session.security.ga.#useridHash#") and not isdefined("session.security.ga.#useridHash#.profile")>
+			<cfset session.security.ga[useridHash].profile = getGoogleProfile(access_token=session.security.ga[useridHash].access_token,proxy=application.config.GUD.proxy) />
+		</cfif>
+
+		<cfif isdefined("session.security.ga") AND structKeyExists(session.security.ga, useridHash) AND structKeyExists(session.security.ga[useridHash], "profile")>
+			<cfset stProfile.firstname = session.security.ga[useridHash].profile.given_name />
+			<cfset stProfile.lastname = session.security.ga[useridHash].profile.family_name />
+			<cfset stProfile.emailaddress = session.security.ga[useridHash].profile.email />
 			<cfset stProfile.label = "#stProfile.firstname# #stProfile.lastname#" />
 		</cfif>
-		
+
 		<cfset stProfile.override = true />
-		
+
 		<cfreturn stProfile />
 	</cffunction>
-	
+
 	<cffunction name="isEnabled" access="public" output="false" returntype="boolean" hint="Returns true if this user directory is active. This function can be overridden to check for the existence of config settings.">
 		
 		<cfreturn isdefined("application.config.GUD.clientID") and len(application.config.GUD.clientID) and isdefined("application.config.GUD.clientSecret") and len(application.config.GUD.clientSecret) />
