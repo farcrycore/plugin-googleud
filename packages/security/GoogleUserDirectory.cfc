@@ -159,7 +159,7 @@
 
 	<cffunction name="isEnabled" access="public" output="false" returntype="boolean" hint="Returns true if this user directory is active. This function can be overridden to check for the existence of config settings.">
 		
-		<cfreturn isdefined("application.fapi.getConfig('GUD', 'clientID')") and len(application.fapi.getConfig('GUD', 'clientID')) and isdefined("application.fapi.getConfig('GUD', 'clientSecret')") and len(application.fapi.getConfig('GUD', 'clientSecret')) />
+		<cfreturn len(application.fapi.getConfig('GUD', 'clientID', '')) and len(application.fapi.getConfig('GUD', 'clientSecret', '')) />
 	</cffunction>
 					
 	
