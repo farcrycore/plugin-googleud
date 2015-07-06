@@ -22,12 +22,12 @@
 			
 			<cftry>
 				<!--- Get Google access information --->
-				<cfset stTokens = getTokens(url.code,application.config.GUD.clientID,application.config.GUD.clientSecret,application.security.userdirectories.gud.getRedirectURL(),application.config.GUD.proxy) />
-				<cfset stTokenInfo = getTokenInfo(application.config.GUD.clientID,stTokens.access_token,application.config.GUD.proxy) />
+				<cfset stTokens = getTokens(url.code,application.fapi.getConfig('GUD', 'clientID'),application.fapi.getConfig('GUD', 'clientSecret'),application.security.userdirectories.gud.getRedirectURL(),application.fapi.getConfig('GUD', 'proxy')) />
+				<cfset stTokenInfo = getTokenInfo(application.fapi.getConfig('GUD', 'clientID'),stTokens.access_token,application.fapi.getConfig('GUD', 'proxy')) />
 				<cfparam name="session.security.ga" default="#structnew()#" >
 				<cfset session.security.ga[hash(stTokenInfo.user_id)] = stTokens />
 				<cfset session.security.ga[hash(stTokenInfo.user_id)].user_id = stTokenInfo.user_id />
-				<cfset session.security.ga[hash(stTokenInfo.user_id)].profile = getGoogleProfile(stTokens.access_token,application.config.GUD.proxy) />
+				<cfset session.security.ga[hash(stTokenInfo.user_id)].profile = getGoogleProfile(stTokens.access_token,application.fapi.getConfig('GUD', 'proxy')) />
 				
 				<!--- If there isn't a gudUser record, create one --->
 				<cfset stUser = oUser.getByUserID(stTokenInfo.user_id) />
@@ -142,7 +142,7 @@
 		<cfset var useridHash = hash(arguments.userid) />
 
 		<cfif isdefined("session.security.ga.#useridHash#") and not isdefined("session.security.ga.#useridHash#.profile")>
-			<cfset session.security.ga[useridHash].profile = getGoogleProfile(access_token=session.security.ga[useridHash].access_token,proxy=application.config.GUD.proxy) />
+			<cfset session.security.ga[useridHash].profile = getGoogleProfile(access_token=session.security.ga[useridHash].access_token,proxy=application.fapi.getConfig('GUD', 'proxy')) />
 		</cfif>
 
 		<cfif isdefined("session.security.ga") AND structKeyExists(session.security.ga, useridHash) AND structKeyExists(session.security.ga[useridHash], "profile")>
@@ -159,7 +159,7 @@
 
 	<cffunction name="isEnabled" access="public" output="false" returntype="boolean" hint="Returns true if this user directory is active. This function can be overridden to check for the existence of config settings.">
 		
-		<cfreturn isdefined("application.config.GUD.clientID") and len(application.config.GUD.clientID) and isdefined("application.config.GUD.clientSecret") and len(application.config.GUD.clientSecret) />
+		<cfreturn isdefined("application.fapi.getConfig('GUD', 'clientID')") and len(application.fapi.getConfig('GUD', 'clientID')) and isdefined("application.fapi.getConfig('GUD', 'clientSecret')") and len(application.fapi.getConfig('GUD', 'clientSecret')) />
 	</cffunction>
 					
 	
