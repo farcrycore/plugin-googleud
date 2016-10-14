@@ -150,6 +150,7 @@
 			<cfset stProfile.lastname = session.security.ga[useridHash].profile.family_name />
 			<cfset stProfile.emailaddress = session.security.ga[useridHash].profile.email />
 			<cfset stProfile.label = "#stProfile.firstname# #stProfile.lastname#" />
+			<cfset stProfile.avatar = replace(session.security.ga[useridHash].profile.picture, "https://", "//") />
 		</cfif>
 
 		<cfset stProfile.override = true />
