@@ -113,7 +113,7 @@
 		<cfset var qUsers = "" />
 		
 		<cfquery datasource="#application.dsn#" name="qUsers">
-			select	objectid
+			select	userid
 			from	#application.dbowner#gudUser
 			where	objectid in (
 						select	parentid
@@ -131,7 +131,7 @@
 					)
 		</cfquery>
 		
-		<cfreturn listtoarray(valuelist(qUsers.objectid)) />
+		<cfreturn listtoarray(valuelist(qUsers.userid)) />
 	</cffunction>
 
 	<cffunction name="getProfile" access="public" output="false" returntype="struct" hint="Returns profile data available through the user directory">
