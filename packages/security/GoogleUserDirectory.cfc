@@ -18,7 +18,7 @@
 			<cfset stResult.authenticated = false />
 			<cfset stResult.message = url.error />
 			
-		<cfelseif structkeyexists(url,"code")>
+		<cfelseif isDefined("url.type") and url.type eq "gudLogin" and structkeyexists(url,"code")>
 			
 			<cftry>
 				<!--- Get Google access information --->
