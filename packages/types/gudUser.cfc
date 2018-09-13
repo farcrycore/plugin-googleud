@@ -11,6 +11,10 @@
 				name="providerDomain" type="string" default="" 
 				hint="The stripped email domain" />
 				
+	<cfproperty ftLabel="Provider Email" ftType="string"
+				name="providerEmail" type="string" default="" 
+				hint="The email" />
+
 	<cfproperty ftLabel="Groups" 
 				name="aGroups" type="array" default="" 
 				ftType="array" ftJoin="gudGroup" 

@@ -21,30 +21,29 @@
 		<cfelseif isDefined("url.type") and url.type eq "gudLogin" and structkeyexists(url,"code")>
 			
 			<cftry>
+				<cfset stTokens = validate(code=url.code, redirectURL=application.security.userdirectories.gud.getRedirectURL()) />
+
 				<!--- Get Google access information --->
-				<cfset stTokens = getTokens(url.code,application.fapi.getConfig('GUD', 'clientID'),application.fapi.getConfig('GUD', 'clientSecret'),application.security.userdirectories.gud.getRedirectURL(),application.fapi.getConfig('GUD', 'proxy')) />
-				<cfset stTokenInfo = getTokenInfo(application.fapi.getConfig('GUD', 'clientID'),stTokens.access_token,application.fapi.getConfig('GUD', 'proxy')) />
 				<cfparam name="session.security.ga" default="#structnew()#" >
-				<cfset session.security.ga[hash(stTokenInfo.user_id)] = stTokens />
-				<cfset session.security.ga[hash(stTokenInfo.user_id)].user_id = stTokenInfo.user_id />
-				<cfset session.security.ga[hash(stTokenInfo.user_id)].profile = getGoogleProfile(stTokens.access_token,application.fapi.getConfig('GUD', 'proxy')) />
+				<cfset session.security.ga[hash(stTokens.user_id)] = stTokens />
 				
 				<!--- If there isn't a gudUser record, create one --->
-				<cfset stUser = oUser.getByUserID(stTokenInfo.user_id) />
+				<cfset stUser = oUser.getByUserID(stTokens.user_id) />
 				<cfif structisempty(stUser)>
 					<cfset stUser = oUser.getData(createuuid()) />
-					<cfset stUser.userid = stTokenInfo.user_id />
+					<cfset stUser.userid = stTokens.user_id />
 					<cfif structkeyexists(stTokens,"refresh_token")>
 						<cfset stUser.refreshToken = stTokens.refresh_token />
 					</cfif>
-					<cfset stUser.providerDomain = listlast(session.security.ga[hash(stTokenInfo.user_id)].profile.email,"@") />
+					<cfset stUser.providerEmail = stTokens.profile.email />
+					<cfset stUser.providerDomain = listlast(stUser.providerEmail,"@") />
 					<cfset oUser.setData(stProperties=stUser) />
 				<cfelse>
-					<cfset session.security.ga[hash(stTokenInfo.user_id)].refresh_token = stUser.refreshToken />
+					<cfset session.security.ga[hash(stTokens.user_id)].refresh_token = stUser.refreshToken />
 				</cfif>
 					
 				<cfset stResult.authenticated = "true" />
-				<cfset stResult.userid = stTokenInfo.user_id />
+				<cfset stResult.userid = stTokens.user_id />
 				<cfset stResult.ud = "GUD" />
 				
 				<cfcatch>
@@ -58,6 +57,21 @@
 		</cfif>
 		
 		<cfreturn stResult />
+	</cffunction>
+	
+	<cffunction name="validate" access="public" output="false" returntype="struct" hint="Validates a google authentication code">
+		<cfargument name="code" type="string" required="true" />
+		<cfargument name="redirectURL" type="string" required="true" />
+
+		<cfset var stTokens = getTokens(arguments.code, application.fapi.getConfig('GUD', 'clientID'), application.fapi.getConfig('GUD', 'clientSecret'), arguments.redirectURL, application.fapi.getConfig('GUD', 'proxy')) />
+		<cfset var stTokenInfo = getTokenInfo(application.fapi.getConfig('GUD', 'clientID'), stTokens.access_token, application.fapi.getConfig('GUD', 'proxy')) />
+
+		<cfset structAppend(stTokens, {
+			"user_id" = stTokenInfo.user_id,
+			"profile" = getGoogleProfile(stTokens.access_token, application.fapi.getConfig('GUD', 'proxy'))
+		}) />
+
+		<cfreturn stTokens />
 	</cffunction>
 	
 	<cffunction name="getUserGroups" access="public" output="false" returntype="array" hint="Returns the groups that the specified user is a member of">
@@ -80,6 +94,7 @@
 						from	#application.dbowner#gudGroup_aDomains
 						where	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
 								or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#stUser.providerDomain#" />
+								or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#stUser.providerEmail#" />
 					)
 		</cfquery>
 		
@@ -127,6 +142,7 @@
 									from	#application.dbowner#gudGroup_aDomains
 									where	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
 											or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=gudUser.providerDomain
+											or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=gudUser.providerEmail
 								)
 					)
 		</cfquery>
