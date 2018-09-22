@@ -219,7 +219,7 @@
 	<cffunction name="getAuthorisationURL" access="public" output="false" returntype="string">
 		<cfargument name="clientid" type="string" required="true" />
 		<cfargument name="redirectURL" type="string" required="true" />
-		<cfargument name="scope" type="string" required="false" default="https://www.googleapis.com/auth/userinfo.profile" />
+		<cfargument name="scope" type="string" required="false" default="profile email" />
 		<cfargument name="state" type="string" required="false" default="" />
 		
 		<cfreturn "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=#arguments.clientid#&redirect_uri=#urlencodedformat(arguments.redirectURL)#&scope=#urlencodedformat(arguments.scope)#&access_type=offline&state=#urlencodedformat(arguments.state)#" />
