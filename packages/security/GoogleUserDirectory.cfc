@@ -221,8 +221,9 @@
 		<cfargument name="redirectURL" type="string" required="true" />
 		<cfargument name="scope" type="string" required="false" default="profile email" />
 		<cfargument name="state" type="string" required="false" default="" />
+		<cfargument name="prompt" type="string" required="false" default="none" />
 		
-		<cfreturn "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=#arguments.clientid#&redirect_uri=#urlencodedformat(arguments.redirectURL)#&scope=#urlencodedformat(arguments.scope)#&access_type=offline&state=#urlencodedformat(arguments.state)#" />
+		<cfreturn "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=#arguments.clientid#&redirect_uri=#urlencodedformat(arguments.redirectURL)#&scope=#urlencodedformat(arguments.scope)#&access_type=offline&state=#urlencodedformat(arguments.state)#&prompt=#arguments.prompt#" />
 	</cffunction>
 	
 	<cffunction name="getTokens" access="private" output="false" returntype="struct">
