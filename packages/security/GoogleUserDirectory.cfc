@@ -53,7 +53,7 @@
 					<cfset stResult.message = "Error while logging into Google: #cfcatch.message#" />
 				</cfcatch>
 			</cftry>
-			
+
 		</cfif>
 		
 		<cfreturn stResult />
@@ -221,7 +221,7 @@
 		<cfargument name="redirectURL" type="string" required="true" />
 		<cfargument name="scope" type="string" required="false" default="profile email" />
 		<cfargument name="state" type="string" required="false" default="" />
-		<cfargument name="prompt" type="string" required="false" default="none" />
+		<cfargument name="prompt" type="string" required="false" default="consent" />
 		
 		<cfreturn "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=#arguments.clientid#&redirect_uri=#urlencodedformat(arguments.redirectURL)#&scope=#urlencodedformat(arguments.scope)#&access_type=offline&state=#urlencodedformat(arguments.state)#&prompt=#arguments.prompt#" />
 	</cffunction>
