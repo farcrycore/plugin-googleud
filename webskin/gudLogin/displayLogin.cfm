@@ -51,16 +51,16 @@ START WEBSKIN
 				<cfif application.security.userdirectories.gud.isEnabled()>
 					<!--- run authenticate function? --->
 					<cfif isdefined("url.logout")>
-						<cfoutput><p class="error">You are logged out. <a href="http://#cgi.http_host#/index.cfm?type=gudLogin&view=displayLogin">Login again</a></p></cfoutput>
+						<cfoutput><p class="error">You are logged out. <a href="/index.cfm?type=gudLogin&view=displayLogin">Login again</a></p></cfoutput>
 					<cfelseif isdefined("url.code") and not isdefined("arguments.stParam.message")>
 						<cfset arguments.stParam = application.security.processLogin() />
 						<cfif arguments.stParam.authenticated and not request.mode.profile>
 							<cflocation url="#URLDecode(arguments.stParam.loginReturnURL)#" addtoken="false" />
 						<cfelse>
-							<cfoutput><p class="error">#arguments.stParam.message# <a href="http://#cgi.http_host#/index.cfm?type=gudLogin&view=displayLogin">Retry</a></p></cfoutput>
+							<cfoutput><p class="error">#arguments.stParam.message# <a href="/index.cfm?type=gudLogin&view=displayLogin">Retry</a></p></cfoutput>
 						</cfif>
 					<cfelse>
-						<cflocation url="#application.security.userdirectories.gud.getAuthorisationURL(clientID=application.fapi.getConfig('GUD', 'clientid'),redirectURL='http://#cgi.http_host#/index.cfm?type=gudLogin&view=displayLogin',scope='https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',state='')#" addtoken="false" />
+						<cflocation url="#application.security.userdirectories.gud.getAuthorisationURL(clientID=application.fapi.getConfig('GUD', 'clientid'),redirectURL=application.security.userdirectories.googleud.getRedirectURL(),scope='https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',state='')#" addtoken="false" />
 					</cfif>
 				<cfelse>
 					<cfoutput>

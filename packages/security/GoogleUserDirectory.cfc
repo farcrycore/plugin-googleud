@@ -343,7 +343,7 @@
 	
 	<cffunction name="getRedirectURL" access="public" output="false" returntype="string" hint="For use with getAuthorisationURL and getRefreshToken">
 		
-		<cfreturn "http://#cgi.http_host##application.url.webroot#/index.cfm?type=gudLogin&view=displayLogin" />
+		<cfreturn "#application.fc.lib.seo.getCanonicalProtocol()#://#cgi.http_host##application.url.webroot#/index.cfm?type=gudLogin&view=displayLogin" />
 	</cffunction>
 	
 	<cffunction name="throwError" access="private" output="false" returntype="void">
