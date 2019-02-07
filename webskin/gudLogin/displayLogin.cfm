@@ -60,7 +60,7 @@ START WEBSKIN
 							<cfoutput><p class="error">#arguments.stParam.message# <a href="/index.cfm?type=gudLogin&view=displayLogin">Retry</a></p></cfoutput>
 						</cfif>
 					<cfelse>
-						<cflocation url="#application.security.userdirectories.gud.getAuthorisationURL(clientID=application.fapi.getConfig('GUD', 'clientid'),redirectURL=application.security.userdirectories.googleud.getRedirectURL(),scope='https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',state='')#" addtoken="false" />
+						<cflocation url="#application.security.userdirectories.gud.getAuthorisationURL(clientID=application.fapi.getConfig('GUD', 'clientid'),redirectURL=application.security.userdirectories.gud.getRedirectURL(),scope='https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',state='')#" addtoken="false" />
 					</cfif>
 				<cfelse>
 					<cfoutput>
