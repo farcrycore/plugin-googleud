@@ -1,4 +1,5 @@
-<cfcomponent displayname="GUD User" hint="User model for the Google User Directory." extends="farcry.core.packages.types.types" output="false" description="">
+<cfcomponent displayname="GUD User" hint="User model for the Google User Directory." extends="farcry.core.packages.types.types" output="false" description=""
+	bObjectBroker="true">
 	
 	<cfproperty ftLabel="UserID" 
 				name="userid" type="string" default="" hint="The userid to use in FarCry" 

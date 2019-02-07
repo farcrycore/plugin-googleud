@@ -1,4 +1,5 @@
-<cfcomponent displayname="Google UD Group" extends="farcry.core.packages.types.types" output="false" bsystem="true" hint="Users can be assigned to any number of groups.  Groups in turn are mapped to roles within the system which determine what a user has permission to do.">
+<cfcomponent displayname="Google UD Group" extends="farcry.core.packages.types.types" output="false" bsystem="true" hint="Users can be assigned to any number of groups.  Groups in turn are mapped to roles within the system which determine what a user has permission to do."
+	bObjectBroker="true">
 	
 	<cfproperty ftSeq="1" ftFieldset="Google UD Group" ftLabel="Title" 
 				name="title" type="string" default="" 
