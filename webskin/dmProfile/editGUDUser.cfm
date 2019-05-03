@@ -52,7 +52,7 @@ ACTION
 VIEW	
 ------------------------------>
 <cfoutput>
-	<h1>EDIT: #stObj.firstname# #stObj.lastname# (#stObj.userdirectory#)</h1>
+	<h1>EDIT: #encodeForHTML(stObj.firstname)# #encodeForHTML(stObj.lastname)# (#stObj.userdirectory#)</h1>
 </cfoutput>
 
 <ft:form>
