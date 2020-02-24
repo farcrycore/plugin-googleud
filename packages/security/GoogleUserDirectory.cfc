@@ -28,7 +28,7 @@
 				<cfset session.security.ga[hash(stTokens.user_id)] = stTokens />
 				
 				<!--- If there isn't a gudUser record, create one --->
-				<cfset stUser = oUser.getByUserID(stTokens.user_id) />
+				<cfset var stUser = oUser.getByUserID(stTokens.user_id) />
 				<cfif structisempty(stUser)>
 					<cfset stUser = oUser.getData(createuuid()) />
 					<cfset stUser.userid = stTokens.user_id />
@@ -233,7 +233,7 @@
 		<cfargument name="redirectURL" type="string" required="true" />
 		<cfargument name="proxy" type="string" required="false" default="" />
 		
-		<cfset var cfhttp = structnew() />
+		<cfset var stResponse = "">
 		<cfset var stResult = structnew() />
 		<cfset var stAttr = structnew() />
 		
@@ -244,7 +244,7 @@
 			<cfset structappend(stAttr,parseProxy(arguments.proxy)) />
 		</cfif>
 		
-		<cfhttp attributeCollection="#stAttr#">
+		<cfhttp attributeCollection="#stAttr#" result="stResponse">
 			<cfhttpparam type="formfield" name="code" value="#arguments.authorizationCode#" />
 			<cfhttpparam type="formfield" name="client_id" value="#arguments.clientID#" />
 			<cfhttpparam type="formfield" name="client_secret" value="#arguments.clientSecret#" />
@@ -252,11 +252,11 @@
 			<cfhttpparam type="formfield" name="grant_type" value="authorization_code" />
 		</cfhttp>
 
-		<cfif not cfhttp.statuscode eq "200 OK">
-			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://accounts.google.com/o/oauth2/token",response=trim(cfhttp.filecontent),args=arguments,stAttr=stAttr) />
+		<cfif not stResponse.statuscode eq "200 OK">
+			<cfset throwError(message="Error accessing Google API: #stResponse.statuscode#",endpoint="https://accounts.google.com/o/oauth2/token",response=trim(stResponse.filecontent),args=arguments,stAttr=stAttr) />
 		</cfif>
 		
-		<cfset stResult = deserializeJSON(cfhttp.FileContent.toString()) />
+		<cfset stResult = deserializeJSON(stResponse.FileContent.toString()) />
 		<cfset stResult.access_token_expires = dateadd("s",stResult.expires_in,now()) />
 		
 		<cfreturn stResult />
@@ -268,27 +268,27 @@
 		<cfargument name="access_token_expires" type="date" required="true" />
 		<cfargument name="proxy" type="string" required="false" default="" />
 		
-		<cfset var cfhttp = structnew() />
+		<cfset var stResponse = "">
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
 		<cfif isdefined("arguments.refresh_token") and datecompare(arguments.access_token_expires,now()) lt 0>
-			<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" attributeCollection="#stProxy#">
+			<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" attributeCollection="#stProxy#" result="stResponse">
 				<cfhttpparam type="formfield" name="refresh_token" value="#arguments.refreshToken#" />
 				<cfhttpparam type="formfield" name="client_id" value="#arguments.clientID#" />
 				<cfhttpparam type="formfield" name="client_secret" value="#arguments.clientSecret#" />
 				<cfhttpparam type="formfield" name="grant_type" value="refresh_token" />
 			</cfhttp>
 			
-			<cfif not cfhttp.statuscode eq "200 OK">
-				<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://accounts.google.com/o/oauth2/token",response=cfhttp.filecontent,argumentCollection=arguments) />
+			<cfif not stResponse.statuscode eq "200 OK">
+				<cfset throwError(message="Error accessing Google API: #stResponse.statuscode#",endpoint="https://accounts.google.com/o/oauth2/token",response=stResponse.filecontent,argumentCollection=arguments) />
 			</cfif>
 			
-			<cfset stResult = deserializeJSON(cfhttp.FileContent.toString()) />
+			<cfset stResult = deserializeJSON(stResponse.FileContent.toString()) />
 			
 			<cfreturn stResult.access_token />
 		<cfelseif not isdefined("arguments.refresh_token")>
-			<cfset throwError(message="Error accessing Google API: access token has expired and no refresh token is available",endpoint="https://accounts.google.com/o/oauth2/token",response=cfhttp.filecontent,argumentCollection=arguments) />
+			<cfset throwError(message="Error accessing Google API: access token has expired and no refresh token is available",endpoint="https://accounts.google.com/o/oauth2/token",response=stResponse.filecontent,argumentCollection=arguments) />
 		</cfif>
 		
 		<cfreturn arguments.access_token />
@@ -299,22 +299,22 @@
 		<cfargument name="accessToken" type="string" required="true" />
 		<cfargument name="proxy" type="string" required="false" default="" />
 		
-		<cfset var cfhttp = structnew() />
+		<cfset var stResponse = "">
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
-		<cfhttp url="https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#arguments.accessToken#" method="GET" attributeCollection="#stProxy#" />
+		<cfhttp url="https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#arguments.accessToken#" method="GET" attributeCollection="#stProxy#" result="stResponse"/>
 		
-		<cfif not cfhttp.statuscode eq "200 OK">
-			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=cfhttp.filecontent,argumentCollection=arguments) />
+		<cfif not stResponse.statuscode eq "200 OK">
+			<cfset throwError(message="Error accessing Google API: #stResponse.statuscode#",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=stResponse.filecontent,argumentCollection=arguments) />
 		</cfif>
 		
-		<cfset stResult = deserializeJSON(cfhttp.FileContent.toString()) />
+		<cfset stResult = deserializeJSON(stResponse.FileContent.toString()) />
 		
 		<cfif structkeyexists(stResult,"error")>
-			<cfset throwError(message="Error accessing Google API: #stResult.error#",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=cfhttp.filecontent,argumentCollection=arguments) />
+			<cfset throwError(message="Error accessing Google API: #stResult.error#",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=stResponse.filecontent,argumentCollection=arguments) />
 		<cfelseif stResult.audience neq arguments.clientID>
-			<cfset throwError(message="Error accessing Google API: Authorisation is for the wrong application",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=cfhttp.filecontent,argumentCollection=arguments) />
+			<cfset throwError(message="Error accessing Google API: Authorisation is for the wrong application",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=stResponse.filecontent,argumentCollection=arguments) />
 		</cfif>
 		
 		<cfreturn stResult />
@@ -324,19 +324,19 @@
 		<cfargument name="accessToken" type="string" required="true" />
 		<cfargument name="proxy" type="string" required="false" default="" />
 		
-		<cfset var cfhttp = structnew() />
+		<cfset var stResponse = "">
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
-		<cfhttp url="https://www.googleapis.com/oauth2/v1/userinfo" method="GET" attributeCollection="#stProxy#">
+		<cfhttp url="https://www.googleapis.com/oauth2/v1/userinfo" method="GET" attributeCollection="#stProxy#" result="stResponse">
 			<cfhttpparam type="header" name="Authorization" value="Bearer #arguments.accessToken#" />
 		</cfhttp>
 
-		<cfif not cfhttp.statuscode eq "200 OK">
-			<cfset throwError(message="Error accessing Google API: #cfhttp.statuscode#",endpoint="https://www.googleapis.com/oauth2/v1/userinfo",response=cfhttp.filecontent,argumentCollection=arguments) />
+		<cfif not stResponse.statuscode eq "200 OK">
+			<cfset throwError(message="Error accessing Google API: #stResponse.statuscode#",endpoint="https://www.googleapis.com/oauth2/v1/userinfo",response=stResponse.filecontent,argumentCollection=arguments) />
 		</cfif>
 		
-		<cfset stResult = deserializeJSON(cfhttp.FileContent.toString()) />
+		<cfset stResult = deserializeJSON(stResponse.FileContent.toString()) />
 		
 		<cfreturn stResult />
 	</cffunction>
