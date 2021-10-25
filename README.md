@@ -22,8 +22,11 @@ In API Access, create a client ID
 
 You will need to add the links FarCry will be using to this config:
 
-- redirect uri: `http://[your domain here]/index.cfm?type=gudLogin&view=displayLogin`
-- javascript origin: `http://[your domain here]`
+- redirect uri: `https://[your domain here]/index.cfm?type=gudLogin&view=displayLogin`
+- javascript origin: `https://[your domain here]`
+
+N.B.
+As of October 2021, only https urls are supported.
 
 You will need the Client ID and Client Secret - either copy them, or keep the window open
 
