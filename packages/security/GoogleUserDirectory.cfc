@@ -244,7 +244,7 @@
 			<cfset structappend(stAttr,parseProxy(arguments.proxy)) />
 		</cfif>
 		
-		<cfhttp attributeCollection="#stAttr#" result="stResponse" timeout="10">
+		<cfhttp attributeCollection="#stAttr#" result="stResponse" timeout="5">
 			<cfhttpparam type="formfield" name="code" value="#arguments.authorizationCode#" />
 			<cfhttpparam type="formfield" name="client_id" value="#arguments.clientID#" />
 			<cfhttpparam type="formfield" name="client_secret" value="#arguments.clientSecret#" />
@@ -273,7 +273,7 @@
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
 		<cfif isdefined("arguments.refresh_token") and datecompare(arguments.access_token_expires,now()) lt 0>
-			<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" attributeCollection="#stProxy#" result="stResponse" timeout="10">
+			<cfhttp url="https://accounts.google.com/o/oauth2/token" method="POST" attributeCollection="#stProxy#" result="stResponse" timeout="5">
 				<cfhttpparam type="formfield" name="refresh_token" value="#arguments.refreshToken#" />
 				<cfhttpparam type="formfield" name="client_id" value="#arguments.clientID#" />
 				<cfhttpparam type="formfield" name="client_secret" value="#arguments.clientSecret#" />
