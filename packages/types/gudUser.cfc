@@ -2,7 +2,7 @@
 	bObjectBroker="true">
 	
 	<cfproperty ftLabel="UserID" 
-				name="userid" type="string" default="" hint="The userid to use in FarCry" 
+				name="userid" type="string" default="" hint="The userid to use in FarCry" dbindex="true"
 				ftType="string" />
 				
 	<cfproperty ftLabel="Refresh Token"
