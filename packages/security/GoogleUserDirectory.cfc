@@ -303,7 +303,7 @@
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
-		<cfhttp url="https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#arguments.accessToken#" method="GET" attributeCollection="#stProxy#" result="stResponse" timeout="10"/>
+		<cfhttp url="https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#arguments.accessToken#" method="GET" attributeCollection="#stProxy#" result="stResponse" timeout="5"/>
 		
 		<cfif not stResponse.statuscode eq "200 OK">
 			<cfset throwError(message="Error accessing Google API: #stResponse.statuscode#",endpoint="https://www.googleapis.com/oauth2/v1/tokeninfo",response=stResponse.filecontent,argumentCollection=arguments) />
@@ -328,7 +328,7 @@
 		<cfset var stResult = structnew() />
 		<cfset var stProxy = parseProxy(arguments.proxy) />
 		
-		<cfhttp url="https://www.googleapis.com/oauth2/v1/userinfo" method="GET" attributeCollection="#stProxy#" result="stResponse" timeout="10">
+		<cfhttp url="https://www.googleapis.com/oauth2/v1/userinfo" method="GET" attributeCollection="#stProxy#" result="stResponse" timeout="5">
 			<cfhttpparam type="header" name="Authorization" value="Bearer #arguments.accessToken#" />
 		</cfhttp>
 
