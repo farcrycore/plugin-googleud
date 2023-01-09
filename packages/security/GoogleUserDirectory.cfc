@@ -161,13 +161,39 @@
 			<cfset session.security.ga[useridHash].profile = getGoogleProfile(access_token=session.security.ga[useridHash].access_token,proxy=application.fapi.getConfig('GUD', 'proxy')) />
 		</cfif>
 
-		<cfif isdefined("session.security.ga") AND structKeyExists(session.security.ga, useridHash) AND structKeyExists(session.security.ga[useridHash], "profile")>
-			<cfset stProfile.firstname = session.security.ga[useridHash].profile.given_name />
-			<cfset stProfile.lastname = session.security.ga[useridHash].profile.family_name />
-			<cfset stProfile.emailaddress = session.security.ga[useridHash].profile.email />
-			<cfset stProfile.label = "#stProfile.firstname# #stProfile.lastname#" />
-			<cfset stProfile.avatar = replace(session.security.ga[useridHash].profile.picture, "https://", "//") />
-		</cfif>
+		<cfscript>
+			if ( 	isdefined("session.security.ga") 
+					&& structKeyExists(session.security.ga, useridHash) 
+					&& structKeyExists(session.security.ga[useridHash], "profile") ) {
+				//  prime firstname and lastname 
+				stProfile.firstname = "";
+				stProfile.lastname = "";
+				
+				//  name seems to always exist; use to provide firstname and lastname defaults
+				if ( structkeyexists(session.security.ga[useridHash].profile,"name") ) {
+					stProfile.name = session.security.ga[useridHash].profile.name;
+					//  check to see if name contains first and lastname 
+					if ( listlen(stProfile.name," ") >= 2 ) {
+						stProfile.firstname =trim(listgetat(stProfile.name,1," "));
+						stProfile.lastname =trim(listdeleteat(stProfile.name,1," "));
+					} else {
+						stProfile.firstname = stProfile.name;
+					}
+				}
+				//  FirstName; override with Given_name if available
+				if ( structkeyexists(session.security.ga[useridHash].profile,"given_name") ) {
+					stProfile.firstname = session.security.ga[useridHash].profile.given_name;
+				}
+				//  LastName; override with Family_name if available
+				if ( structkeyexists(session.security.ga[useridHash].profile,"family_name") ) {
+					stProfile.lastname = session.security.ga[useridHash].profile.family_name;
+				}
+				//  set the rest as will exist 
+				stProfile.emailaddress = session.security.ga[useridHash].profile.email;
+				stProfile.label = "#stProfile.firstname# #stProfile.lastname#";
+				stProfile.avatar = replace(session.security.ga[useridHash].profile.picture, "https://", "//");
+			}
+		</cfscript>
 
 		<cfset stProfile.override = true />
 
