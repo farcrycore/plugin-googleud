@@ -14,6 +14,12 @@
 
 <cfset oUser = application.fapi.getContentType(typename="gudUser") />
 
+<!--- profile usernames are either "<userid>_GUD" or the bare Google user id (core dmProfile.getProfileID accepts both) --->
+<cfset userID = stObj.username />
+<cfif listLen(userID,"_") gt 1 and listLast(userID,"_") eq "GUD">
+	<cfset userID = application.factory.oUtils.listSlice(userID,1,-2,"_") />
+</cfif>
+
 <!----------------------------- 
 ACTION	
 ------------------------------>
@@ -32,7 +38,7 @@ ACTION
 			<cfset stUser = oUser.getData(objectid=savedUserID) />
 			
 			<!--- If the current username is not the same one we saved (ie. new user) --->
-			<cfif stProperties.username NEQ "#stUser.userid#_GUD"><!--- New user --->
+			<cfif userID NEQ stUser.userid><!--- New user --->
 				<cfset stProperties.username = "#stUser.userid#_GUD" />
 				<cfset stProperties.userdirectory = "GUD" />
 			</cfif>
@@ -45,7 +51,6 @@ ACTION
 
 <cfif stObj.userdirectory eq "GUD" or stObj.userdirectory eq "">
 
-	<cfset userID = application.factory.oUtils.listSlice(stObj.username,1,-2,"_") />
 	<cfset stUser = oUser.getByUserID(userID) />
 	
 <cfelse>
@@ -63,9 +68,6 @@ VIEW
 
 <ft:form>
 	<ft:object objectid="#stObj.objectid#" typename="dmProfile" lfields="firstname,lastname,breceiveemail,emailaddress,phone,fax,position,department,locale,overviewHome" lhiddenFields="username,userdirectory" legend="User details" />
-	
-	<cfset userID = application.factory.oUtils.listSlice(stObj.username,1,-2,"_") />
-	<cfset stUser = oUser.getByUserID(userID) />
 	
 	<!--- gudUser identity fields are set by Google on login (see GoogleUserDirectory.authenticate), so they are display only --->
 	<cfif structIsEmpty(stUser) or stUser.userid eq "">
