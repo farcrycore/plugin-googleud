@@ -5,9 +5,9 @@
 				name="title" type="string" default="" 
 				hint="The title of this group" />
 				
-	<cfproperty ftSeq="2" ftFieldset="Google UD Group" ftRenderType="custom" ftLabel="Domains" 
+	<cfproperty ftSeq="2" ftFieldset="Google UD Group" ftRenderType="custom" ftLabel="Domains / Emails" 
 				name="aDomains" type="array" 
-				ftHint="A list of domains (one per line) that should automatically be assigned this group. '*' for all users. Strict matching to the domain part of the user's email address" />
+				ftHint="One per line: a domain (example.com), a full email address (jane@example.com), or '*' for all Google users. Users whose email address or email domain matches an entry are automatically assigned this group. Matching is exact, not by subdomain." />
 	
 	
 	<cffunction name="ftEditADomains" access="public" output="true" returntype="string" hint="his will return a string of formatted HTML text to enable the user to edit the data">
@@ -44,10 +44,30 @@
 		<cfset stResult.value = stFieldPost.Value>
 		<cfset stResult.stError = StructNew()>
 		
+		<cfset var aEntries = listtoarray(arguments.stFieldPost.value,"#chr(10)##chr(13)#") />
+		<cfset var entry = "" />
+		<cfset var lInvalid = "" />
+		
 		<!--- --------------------------- --->
 		<!--- Perform any validation here --->
 		<!--- --------------------------- --->
-		<cfset stResult.value = listtoarray(arguments.stFieldPost.value,"#chr(10)##chr(13)#") />
+		<!--- Entries are stored trimmed and lower case, so that they match gudUser.providerDomain / providerEmail regardless of database collation --->
+		<cfset stResult.value = arraynew(1) />
+		<cfloop array="#aEntries#" index="entry">
+			<cfset entry = lcase(trim(entry)) />
+			<cfif len(entry) and not arrayfind(stResult.value, entry)>
+				<cfset arrayappend(stResult.value, entry) />
+				<cfif not (entry eq "*" or isvalid("email", entry) or refind("^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$", entry))>
+					<cfset lInvalid = listappend(lInvalid, entry, "|") />
+				</cfif>
+			</cfif>
+		</cfloop>
+		
+		<cfif len(lInvalid)>
+			<cfset stResult.bSuccess = false />
+			<cfset stResult.stError.message = application.fc.lib.esapi.encodeForHTML("Not a domain, email address or '*': #replace(lInvalid, "|", ", ", "all")#") />
+			<cfset stResult.stError.class = "validation-advice" />
+		</cfif>
 
 		<!--- ----------------- --->
 		<!--- Return the Result --->

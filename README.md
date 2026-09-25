@@ -51,7 +51,12 @@ Configure the plugin:
 
 - Add the **Google Client ID** and **Client Secret** into the Google User Directory configuration under `ADMIN > Configuration`.
 - Deploy the new content types - **gudUser** and **gudGroup** through the webtop `ADMIN > Developer Tools > COAPI`. 
-- Create a Google user group (Admin -> General Admin -> User Directory -> Group Groups) for your specific email domain (anyone logging in with an email within this domain will be automatically assigned to this group)
+- Create a Google user group (Admin -> General Admin -> User Directory -> Group Groups). In **Domains / Emails**, list one entry per line:
+  - an email domain, e.g. `example.com`. Anyone who logs in with an email address in this domain is automatically assigned to the group.
+  - a full email address, e.g. `jane@example.com`. This maps one Google user to the group.
+  - `*`. This maps every Google user to the group.
+
+  Matching is exact and not case-sensitive. A domain does not match its subdomains. The user's email address is recorded each time they log in, so a user created before email mapping was added will match after their next login.
 - Add your Group to the appropriate FarCry roles (Admin -> General Admin -> Roles & Permissions -> Roles)
 
 ## But wait, there's more!

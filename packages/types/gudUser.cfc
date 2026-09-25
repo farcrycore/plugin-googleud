@@ -3,7 +3,7 @@
 	
 	<cfproperty ftLabel="UserID" 
 				name="userid" type="string" default="" hint="The userid to use in FarCry" dbindex="true"
-				ftType="string" />
+				ftType="string" ftValidation="required" />
 				
 	<cfproperty ftLabel="Refresh Token"
 				name="refreshToken" type="string" default="" />
@@ -14,7 +14,7 @@
 				
 	<cfproperty ftLabel="Provider Email" ftType="string"
 				name="providerEmail" type="string" default="" 
-				hint="The email" />
+				hint="The user's Google email address (lower case); matched against group entries" />
 
 	<cfproperty ftLabel="Groups" 
 				name="aGroups" type="array" default="" 
@@ -26,6 +26,25 @@
 				ftType="arrayList" ftArrayField="aGroups" ftJoin="farGroup" 
 				hint="The groups this member is a member of (list generated automatically)" />
 	
+	
+	<cffunction name="BeforeSave" access="public" output="false" returntype="struct">
+		<cfargument name="stProperties" required="true" type="struct">
+		<cfargument name="stFields" required="true" type="struct">
+		<cfargument name="stFormPost" required="false" type="struct">
+		
+		<!--- Normalise email / domain so they match gudGroup entries, and derive the domain from the email for manually created users --->
+		<cfif structkeyexists(arguments.stProperties,"providerEmail")>
+			<cfset arguments.stProperties.providerEmail = lcase(trim(arguments.stProperties.providerEmail)) />
+			<cfif find("@",arguments.stProperties.providerEmail) and (not structkeyexists(arguments.stProperties,"providerDomain") or not len(trim(arguments.stProperties.providerDomain)))>
+				<cfset arguments.stProperties.providerDomain = listlast(arguments.stProperties.providerEmail,"@") />
+			</cfif>
+		</cfif>
+		<cfif structkeyexists(arguments.stProperties,"providerDomain")>
+			<cfset arguments.stProperties.providerDomain = lcase(trim(arguments.stProperties.providerDomain)) />
+		</cfif>
+		
+		<cfreturn super.BeforeSave(argumentCollection=arguments) />
+	</cffunction>
 	
 	<cffunction name="addGroup" access="public" output="false" returntype="void" hint="Adds this user to a group">
 		<cfargument name="user" type="string" required="true" hint="The user to add" />

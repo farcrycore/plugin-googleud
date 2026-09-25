@@ -29,17 +29,26 @@
 				
 				<!--- If there isn't a gudUser record, create one --->
 				<cfset var stUser = oUser.getByUserID(stTokens.user_id) />
+				<cfset var providerEmail = lcase(trim(stTokens.profile.email)) />
+				<cfset var providerDomain = listlast(providerEmail,"@") />
 				<cfif structisempty(stUser)>
 					<cfset stUser = oUser.getData(createuuid()) />
 					<cfset stUser.userid = stTokens.user_id />
 					<cfif structkeyexists(stTokens,"refresh_token")>
 						<cfset stUser.refreshToken = stTokens.refresh_token />
 					</cfif>
-					<cfset stUser.providerEmail = stTokens.profile.email />
-					<cfset stUser.providerDomain = listlast(stUser.providerEmail,"@") />
+					<cfset stUser.providerEmail = providerEmail />
+					<cfset stUser.providerDomain = providerDomain />
 					<cfset oUser.setData(stProperties=stUser) />
 				<cfelse>
 					<cfset session.security.ga[hash(stTokens.user_id)].refresh_token = stUser.refreshToken />
+
+					<!--- Keep the email and domain current, so that group email / domain mappings apply to users created before they were recorded --->
+					<cfif compare(stUser.providerEmail, providerEmail) neq 0 or compare(stUser.providerDomain, providerDomain) neq 0>
+						<cfset stUser.providerEmail = providerEmail />
+						<cfset stUser.providerDomain = providerDomain />
+						<cfset oUser.setData(stProperties=stUser) />
+					</cfif>
 				</cfif>
 					
 				<cfset stResult.authenticated = "true" />
@@ -93,8 +102,12 @@
 						select	parentid
 						from	#application.dbowner#gudGroup_aDomains
 						where	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
-								or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#stUser.providerDomain#" />
-								or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#stUser.providerEmail#" />
+								<cfif len(stUser.providerDomain)>
+									or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#lcase(stUser.providerDomain)#" />
+								</cfif>
+								<cfif len(stUser.providerEmail)>
+									or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="#lcase(stUser.providerEmail)#" />
+								</cfif>
 					)
 		</cfquery>
 		
@@ -131,18 +144,26 @@
 			select	userid
 			from	#application.dbowner#gudUser
 			where	objectid in (
-						select	parentid
+						<!--- explicitly assigned to the group --->
+						select	ug.parentid
 						from	#application.dbowner#gudUser_aGroups ug
 								inner join
 								#application.dbowner#gudGroup g
 								on ug.<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=g.objectid
 						where	g.title=<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.group#" />
-								or objectid in (
-									select	parentid
-									from	#application.dbowner#gudGroup_aDomains
-									where	<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
-											or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=gudUser.providerDomain
-											or <cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=gudUser.providerEmail
+					)
+					or exists (
+						<!--- mapped to the group by '*', email domain, or full email address --->
+						select	1
+						from	#application.dbowner#gudGroup_aDomains gd
+								inner join
+								#application.dbowner#gudGroup g
+								on gd.parentid=g.objectid
+						where	g.title=<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.group#" />
+								and (
+									gd.<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=<cfqueryparam cfsqltype="cf_sql_varchar" value="*" />
+									or gd.<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=lower(gudUser.providerDomain)
+									or gd.<cfif application.dbtype eq "mysql">`data`<cfelse>data</cfif>=lower(gudUser.providerEmail)
 								)
 					)
 		</cfquery>

@@ -68,10 +68,8 @@ VIEW
 	<cfset stUser = oUser.getByUserID(userID) />
 	
 	<cfif structIsEmpty(stUser) or stUser.userid eq "">
-		<cfset stPropValues = structnew() />
-		<cfset stPropValues.userdirectory = "GUD" />
-
-		<ft:object stObject="#stObj#" typename="gudUser" lfields="userid,providerDomain,aGroups" stPropValues="#stPropValues#" legend="Security" />
+		<!--- render a new gudUser; passing stObject="#stObj#" here would render the dmProfile again under the same prefix, doubling every field on save --->
+		<ft:object typename="gudUser" key="gudUser-#stObj.objectid#" lfields="userid,providerEmail,providerDomain,aGroups" legend="Security" />
 	<cfelse>
 		<ft:object stObject="#stUser#" typename="gudUser" lfields="aGroups" legend="Security" />
 	</cfif>
