@@ -67,10 +67,13 @@ VIEW
 	<cfset userID = application.factory.oUtils.listSlice(stObj.username,1,-2,"_") />
 	<cfset stUser = oUser.getByUserID(userID) />
 	
+	<!--- gudUser identity fields are set by Google on login (see GoogleUserDirectory.authenticate), so they are display only --->
 	<cfif structIsEmpty(stUser) or stUser.userid eq "">
-		<!--- render a new gudUser; passing stObject="#stObj#" here would render the dmProfile again under the same prefix, doubling every field on save --->
-		<ft:object typename="gudUser" key="gudUser-#stObj.objectid#" lfields="userid,providerEmail,providerDomain,aGroups" legend="Security" />
+		<ft:fieldset legend="Security">
+			<cfoutput><p>This user has not signed in with Google yet. Groups can be assigned after their first sign in, or through a group's domain/email mapping.</p></cfoutput>
+		</ft:fieldset>
 	<cfelse>
+		<ft:object stObject="#stUser#" typename="gudUser" lfields="userid,providerEmail,providerDomain" format="display" legend="Google Account" />
 		<ft:object stObject="#stUser#" typename="gudUser" lfields="aGroups" legend="Security" />
 	</cfif>
 	

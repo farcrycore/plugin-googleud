@@ -3,7 +3,7 @@
 	
 	<cfproperty ftLabel="UserID" 
 				name="userid" type="string" default="" hint="The userid to use in FarCry" dbindex="true"
-				ftType="string" ftValidation="required" />
+				ftType="string" />
 				
 	<cfproperty ftLabel="Refresh Token"
 				name="refreshToken" type="string" default="" />
